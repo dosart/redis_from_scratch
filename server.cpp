@@ -32,6 +32,23 @@ static void do_something(int connfd) {
     write(connfd, wbuf, strlen(wbuf));
 }
 
+static void fd_set_nb(int fd) {
+    errno = 0;
+    int flags = fcntl(fd, F_GETFL, 0);
+    if (errno) {
+        die("fcntl error");
+        return;
+    }
+
+    flags |= O_NONBLOCK;
+
+    errno = 0;
+    (void)fcntl(fd, F_SETFL, flags);
+    if (errno) {
+        die("fcntl error");
+    }
+}
+
 int main() {
     int fd = socket(AF_INET, SOCK_STREAM, 0);
     if (fd < 0) {
